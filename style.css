@@ -104,9 +104,11 @@ button { font-family: inherit; color: inherit; border: 0; cursor: pointer; }
   width: min(100%, 400px, calc((100dvh - 220px) * 1));
   margin-inline: auto;
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  /* minmax(0, 1fr): never let a column grow to fit its content (iOS Safari
+     otherwise sizes the SVG at its 300px default and overflows the screen). */
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 16px;
-  align-content: center;
+  align-content: safe center;
 }
 
 /* Short/landscape viewports (e.g. phones rotated): a 2x2 grid sized from
@@ -119,20 +121,22 @@ button { font-family: inherit; color: inherit; border: 0; cursor: pointer; }
   .cards {
     width: min(100%, 640px, calc((100vh - 120px) * 2));
     width: min(100%, 640px, calc((100dvh - 120px) * 2));
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 }
 
 .card {
   position: relative;
   aspect-ratio: 1;
+  min-width: 0;
+  min-height: 0;
   display: flex;
   padding: 14%;
   border-radius: 24px;
   background: var(--card);
   box-shadow: 0 6px 0 var(--shadow);
 }
-.card svg { width: 100%; height: 100%; pointer-events: none; }
+.card svg { display: block; flex: 1; width: 100%; height: 100%; min-width: 0; min-height: 0; pointer-events: none; }
 .card:active { transform: scale(.96); }
 .card.wiggle { animation: wiggle .5s; }
 .card.bounce { animation: bounce .6s; }

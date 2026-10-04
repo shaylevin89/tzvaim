@@ -68,5 +68,5 @@ export const PICTURE_IDS = Object.keys(PICTURES);
 export function renderPicture(id, hex) {
   const draw = PICTURES[id];
   if (!draw) throw new Error(`unknown picture: ${id}`);
-  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" aria-hidden="true">${draw(hex)}</svg>`;
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100%" height="100%" aria-hidden="true">${draw(hex)}</svg>`;
 }
