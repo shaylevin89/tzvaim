@@ -123,3 +123,53 @@ test('unlock resumes a suspended context only', async () => {
   await player.unlock();
   assert.equal(context.resumed, 1);
 });
+
+test('unlock resumes an interrupted context too', async () => {
+  const { context, player } = await loadedPlayer();
+  context.state = 'interrupted';
+  await player.unlock();
+  assert.equal(context.resumed, 1);
+  assert.equal(context.state, 'running');
+});
+
+test('unlock does nothing once the context is already running', async () => {
+  const { context, player } = await loadedPlayer();
+  context.state = 'running';
+  await player.unlock();
+  assert.equal(context.resumed, 0);
+});
+
+test('play resolves true via a safety timeout when the source never ends', async () => {
+  // Simulates a non-running AudioContext (e.g. iOS 'interrupted'): the
+  // source is started but onended never fires, so play() must not hang.
+  const context = fakeContext();
+  const player = createAudioPlayer({ context, fetchFn: okFetch });
+  const decodeAudioData = context.decodeAudioData.bind(context);
+  context.decodeAudioData = async (data) => {
+    const decoded = await decodeAudioData(data);
+    return { ...decoded, duration: 0.01 };
+  };
+  await player.load({ a: 'a.mp3' });
+  const done = player.play('a');
+  // Never call src.finish() / stop() -- onended must never fire.
+  assert.equal(await done, true);
+});
+
+test('stopping a clip clears its safety timer so it cannot later resolve a newer clip', async () => {
+  const context = fakeContext();
+  const player = createAudioPlayer({ context, fetchFn: okFetch });
+  const decodeAudioData = context.decodeAudioData.bind(context);
+  context.decodeAudioData = async (data) => {
+    const decoded = await decodeAudioData(data);
+    return { ...decoded, duration: 0.01 };
+  };
+  await player.load({ a: 'a.mp3', b: 'b.mp3' });
+  const first = player.play('a');
+  const second = player.play('b'); // interrupts a; a's timer should be cleared
+  assert.equal(await first, false);
+  // Wait past a's safety timeout (duration*1000+500 = 510ms); b must still
+  // be the live clip, unresolved until it actually ends.
+  await new Promise((r) => setTimeout(r, 600));
+  context.sources[1].finish();
+  assert.equal(await second, true);
+});

@@ -19,6 +19,7 @@ body {
   display: flex;
   justify-content: center;
   -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
   -webkit-user-select: none;
   user-select: none;
   touch-action: manipulation;
@@ -28,6 +29,7 @@ body {
   position: relative;
   width: 100%;
   max-width: 480px;
+  min-height: 100vh;
   min-height: 100dvh;
   background: var(--bg);
   overflow: hidden;
@@ -98,12 +100,27 @@ button { font-family: inherit; color: inherit; border: 0; cursor: pointer; }
 
 .cards {
   flex: 1;
-  width: 100%;
-  max-width: 400px;
+  width: min(100%, 400px, calc((100vh - 220px) * 1));
+  width: min(100%, 400px, calc((100dvh - 220px) * 1));
+  margin-inline: auto;
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 16px;
   align-content: center;
+}
+
+/* Short/landscape viewports (e.g. phones rotated): a 2x2 grid sized from
+   width alone would be taller than the available height, pushing the
+   bottom row below the fold. Switch to a single row and shrink the prompt
+   so all 4 cards stay fully visible and tappable. */
+@media (orientation: landscape) and (max-height: 500px) {
+  .prompt { margin-top: 8px; }
+  .prompt__word { font-size: clamp(28px, 6vw, 40px); }
+  .cards {
+    width: min(100%, 640px, calc((100vh - 120px) * 2));
+    width: min(100%, 640px, calc((100dvh - 120px) * 2));
+    grid-template-columns: repeat(4, 1fr);
+  }
 }
 
 .card {

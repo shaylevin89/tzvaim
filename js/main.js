@@ -45,6 +45,19 @@ function ensureAudio() {
   return player.unlock().then(() => audioReady);
 }
 
+// Best-effort, fire-and-forget resume. iOS can leave the AudioContext
+// 'interrupted' or 'suspended' after screen lock, app switch or a phone
+// call; without resuming it here, a started source never fires onended and
+// playSequence() in onCardTap would hang, freezing the board. Called
+// synchronously (no await) from every user-gesture handler that plays sound.
+function wake() {
+  player?.unlock();
+}
+
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible') wake();
+});
+
 function play(key) {
   return player ? player.play(key) : Promise.resolve(true);
 }
@@ -99,6 +112,7 @@ async function startGame() {
 }
 
 async function onCardTap(index, el) {
+  wake();
   const mySession = session;
   const { result, colorId } = game.tap(index);
   if (result === 'ignored') return;
@@ -150,6 +164,7 @@ function goHome() {
 }
 
 function toggleMute() {
+  wake();
   if (!player) return;
   player.setMuted(!player.muted);
   $('btn-mute').textContent = player.muted ? '🔇' : '🔊';
@@ -161,4 +176,7 @@ $('btn-again').addEventListener('click', startGame);
 $('btn-home').addEventListener('click', goHome);
 $('btn-end-home').addEventListener('click', goHome);
 $('btn-mute').addEventListener('click', toggleMute);
-$('btn-say').addEventListener('click', sayTarget);
+$('btn-say').addEventListener('click', () => {
+  wake();
+  sayTarget();
+});

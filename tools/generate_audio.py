@@ -55,29 +55,31 @@ async def generate(key: str) -> None:
     with tempfile.NamedTemporaryFile(suffix=".mp3", delete=False) as tmp:
         temp_path = tmp.name
 
-    await edge_tts.Communicate(text, VOICE, rate=RATE).save(temp_path)
+    try:
+        await edge_tts.Communicate(text, VOICE, rate=RATE).save(temp_path)
 
-    # Trim leading and trailing silence with ffmpeg
-    silence_filter = (
-        "silenceremove=start_periods=1:start_threshold=-45dB:start_silence=0.05,"
-        "areverse,"
-        "silenceremove=start_periods=1:start_threshold=-45dB:start_silence=0.05,"
-        "areverse"
-    )
-    cmd = [
-        ffmpeg_path,
-        "-i", temp_path,
-        "-af", silence_filter,
-        "-c:a", "libmp3lame",
-        "-q:a", "4",
-        "-y",
-        str(out),
-    ]
-    result = subprocess.run(cmd, capture_output=True, text=True)
-    if result.returncode != 0:
-        sys.exit(f"ffmpeg failed for {key}: {result.stderr}")
+        # Trim leading and trailing silence with ffmpeg
+        silence_filter = (
+            "silenceremove=start_periods=1:start_threshold=-45dB:start_silence=0.05,"
+            "areverse,"
+            "silenceremove=start_periods=1:start_threshold=-45dB:start_silence=0.05,"
+            "areverse"
+        )
+        cmd = [
+            ffmpeg_path,
+            "-i", temp_path,
+            "-af", silence_filter,
+            "-c:a", "libmp3lame",
+            "-q:a", "4",
+            "-y",
+            str(out),
+        ]
+        result = subprocess.run(cmd, capture_output=True, text=True)
+        if result.returncode != 0:
+            sys.exit(f"ffmpeg failed for {key}: {result.stderr}")
+    finally:
+        Path(temp_path).unlink(missing_ok=True)
 
-    Path(temp_path).unlink()
     print(f"{key:8} -> audio/{rel}")
 
 

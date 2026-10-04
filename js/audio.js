@@ -24,7 +24,10 @@ export function createAudioPlayer({ context, fetchFn = (url) => fetch(url) }) {
     },
 
     async unlock() {
-      if (context.state === 'suspended') {
+      // iOS parks the context as 'interrupted' (screen lock / app switch /
+      // call) as well as 'suspended'; either way it must be resumed from a
+      // user gesture or playback silently never starts.
+      if (context.state !== 'running') {
         try { await context.resume(); } catch { /* stays silent; game still works */ }
       }
     },
@@ -33,6 +36,7 @@ export function createAudioPlayer({ context, fetchFn = (url) => fetch(url) }) {
       if (!current) return;
       const playing = current;
       current = null;
+      clearTimeout(playing.timer);
       try { playing.source.stop(); } catch { /* already stopped */ }
       playing.finish(false);
     },
@@ -45,14 +49,25 @@ export function createAudioPlayer({ context, fetchFn = (url) => fetch(url) }) {
         const source = context.createBufferSource();
         source.buffer = buffer;
         source.connect(gain);
-        const entry = { source, finish: resolve };
+        const entry = { source, finish: resolve, timer: null };
         source.onended = () => {
           if (current !== entry) return; // interrupted; already resolved false
           current = null;
+          clearTimeout(entry.timer);
           resolve(true);
         };
         current = entry;
         source.start();
+        // Safety net: if the context isn't actually running (e.g. iOS left
+        // it 'interrupted'), a started source never fires onended and this
+        // promise would hang forever, freezing the game. Resolve anyway
+        // once the clip should have finished.
+        const duration = Number.isFinite(buffer.duration) ? buffer.duration : 0;
+        entry.timer = setTimeout(() => {
+          if (current !== entry) return;
+          current = null;
+          resolve(true);
+        }, duration * 1000 + 500);
       });
     },
 
