@@ -7,9 +7,14 @@ Usage (from repo root):
 
 Spoken text uses niqqud to steer pronunciation. If a word sounds wrong,
 edit its text here and regenerate just that key.
+
+Requires: ffmpeg (for silence trimming).
 """
 import asyncio
+import shutil
+import subprocess
 import sys
+import tempfile
 from pathlib import Path
 
 import edge_tts
@@ -38,10 +43,41 @@ CLIPS = {
 
 
 async def generate(key: str) -> None:
+    ffmpeg_path = shutil.which("ffmpeg")
+    if not ffmpeg_path:
+        sys.exit("ffmpeg not found in PATH")
+
     rel, text = CLIPS[key]
     out = AUDIO_DIR / rel
     out.parent.mkdir(parents=True, exist_ok=True)
-    await edge_tts.Communicate(text, VOICE, rate=RATE).save(str(out))
+
+    # Generate temp file via edge-tts
+    with tempfile.NamedTemporaryFile(suffix=".mp3", delete=False) as tmp:
+        temp_path = tmp.name
+
+    await edge_tts.Communicate(text, VOICE, rate=RATE).save(temp_path)
+
+    # Trim leading and trailing silence with ffmpeg
+    silence_filter = (
+        "silenceremove=start_periods=1:start_threshold=-45dB:start_silence=0.05,"
+        "areverse,"
+        "silenceremove=start_periods=1:start_threshold=-45dB:start_silence=0.05,"
+        "areverse"
+    )
+    cmd = [
+        ffmpeg_path,
+        "-i", temp_path,
+        "-af", silence_filter,
+        "-c:a", "libmp3lame",
+        "-q:a", "4",
+        "-y",
+        str(out),
+    ]
+    result = subprocess.run(cmd, capture_output=True, text=True)
+    if result.returncode != 0:
+        sys.exit(f"ffmpeg failed for {key}: {result.stderr}")
+
+    Path(temp_path).unlink()
     print(f"{key:8} -> audio/{rel}")
 
 
