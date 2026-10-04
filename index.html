@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>צבעים</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎨</text></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Varela+Round&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main class="app">
+    <section id="screen-start" class="screen screen--center">
+      <h1 class="title">צבעים</h1>
+      <button id="btn-play" class="btn-big" aria-label="התחלה">▶</button>
+    </section>
+
+    <section id="screen-game" class="screen" hidden>
+      <header class="topbar">
+        <button id="btn-home" class="btn-round" aria-label="בית">🏠</button>
+        <ol id="dots" class="dots" aria-label="התקדמות"></ol>
+        <button id="btn-mute" class="btn-round" aria-label="השתקה">🔊</button>
+      </header>
+      <div class="prompt">
+        <span id="target-word" class="prompt__word"></span>
+        <button id="btn-say" class="btn-round" aria-label="השמעה">💬</button>
+      </div>
+      <div id="cards" class="cards"></div>
+    </section>
+
+    <section id="screen-end" class="screen screen--center" hidden>
+      <div id="confetti" class="confetti" aria-hidden="true"></div>
+      <h1 class="title">כל הכבוד!</h1>
+      <button id="btn-again" class="btn-big btn-big--text">שוב</button>
+      <button id="btn-end-home" class="btn-round" aria-label="בית">🏠</button>
+    </section>
+  </main>
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>

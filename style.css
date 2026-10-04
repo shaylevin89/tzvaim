@@ -1,0 +1,158 @@
+:root {
+  --bg: #d6ecfa;
+  --ink: #2b2b4f;
+  --card: #fff;
+  --shadow: #b3cfe6;
+  --accent: #f5c542;
+  --accent-dark: #c79a1d;
+  --dot: #a9cbe3;
+}
+
+* { box-sizing: border-box; }
+
+html, body { margin: 0; height: 100%; }
+
+body {
+  font-family: 'Varela Round', system-ui, sans-serif;
+  color: var(--ink);
+  background: linear-gradient(160deg, #5b3cc4, #2a1a7a);
+  display: flex;
+  justify-content: center;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-user-select: none;
+  user-select: none;
+  touch-action: manipulation;
+}
+
+.app {
+  position: relative;
+  width: 100%;
+  max-width: 480px;
+  min-height: 100dvh;
+  background: var(--bg);
+  overflow: hidden;
+}
+
+.screen {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: max(16px, env(safe-area-inset-top)) 16px max(16px, env(safe-area-inset-bottom));
+}
+.screen[hidden] { display: none; }
+.screen--center { justify-content: center; gap: 32px; }
+
+.title {
+  margin: 0;
+  font-size: clamp(56px, 18vw, 96px);
+  font-weight: normal;
+  color: var(--accent);
+  text-shadow: 0 4px 0 var(--accent-dark);
+}
+
+button { font-family: inherit; color: inherit; border: 0; cursor: pointer; }
+
+.btn-big {
+  width: 140px;
+  height: 140px;
+  border-radius: 50%;
+  background: var(--accent);
+  font-size: 56px;
+  box-shadow: 0 8px 0 var(--accent-dark);
+}
+.btn-big--text { font-size: 44px; }
+.btn-big:active { transform: translateY(6px); box-shadow: 0 2px 0 var(--accent-dark); }
+
+.btn-round {
+  flex: none;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: #fff;
+  font-size: 26px;
+  box-shadow: 0 4px 0 var(--shadow);
+}
+.btn-round:active { transform: translateY(3px); box-shadow: 0 1px 0 var(--shadow); }
+
+.topbar {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.dots { display: flex; gap: 8px; margin: 0; padding: 0; list-style: none; }
+.dots li {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--dot);
+  transition: background .3s, transform .3s;
+}
+.dots li.done { background: var(--accent); transform: scale(1.15); }
+
+.prompt { display: flex; align-items: center; gap: 12px; margin-top: 24px; }
+.prompt__word { font-size: clamp(40px, 12vw, 56px); }
+
+.cards {
+  flex: 1;
+  width: 100%;
+  max-width: 400px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  align-content: center;
+}
+
+.card {
+  position: relative;
+  aspect-ratio: 1;
+  display: flex;
+  padding: 14%;
+  border-radius: 24px;
+  background: var(--card);
+  box-shadow: 0 6px 0 var(--shadow);
+}
+.card svg { width: 100%; height: 100%; pointer-events: none; }
+.card:active { transform: scale(.96); }
+.card.wiggle { animation: wiggle .5s; }
+.card.bounce { animation: bounce .6s; }
+.card.solved { outline: 6px solid var(--accent); }
+.card.solved::after {
+  content: '✨';
+  position: absolute;
+  top: -14px;
+  left: -10px;
+  font-size: 36px;
+  animation: bounce .6s;
+}
+
+@keyframes wiggle {
+  0%, 100% { transform: rotate(0); }
+  20% { transform: rotate(-8deg); }
+  40% { transform: rotate(8deg); }
+  60% { transform: rotate(-5deg); }
+  80% { transform: rotate(5deg); }
+}
+@keyframes bounce {
+  0%, 100% { transform: scale(1); }
+  30% { transform: scale(1.15); }
+  60% { transform: scale(.95); }
+}
+
+.confetti { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
+.confetti i {
+  position: absolute;
+  top: -20px;
+  width: 10px;
+  height: 16px;
+  border-radius: 3px;
+  animation: fall linear forwards;
+}
+@keyframes fall { to { transform: translateY(110dvh) rotate(720deg); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .card.wiggle, .card.bounce, .card.solved::after, .confetti i { animation: none; }
+}
