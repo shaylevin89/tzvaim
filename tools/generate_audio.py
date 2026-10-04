@@ -35,10 +35,10 @@ CLIPS = {
     "brown": ("colors/brown.mp3", "חוּם"),
     "black": ("colors/black.mp3", "שָׁחֹר"),
     "white": ("colors/white.mp3", "לָבָן"),
-    "praise1": ("praise/1.mp3", "כׇּל הַכָּבוֹד!"),
+    "praise1": ("praise/1.mp3", "כּוֹל הַכָּבוֹד!"),
     "praise2": ("praise/2.mp3", "יֹפִי!"),
     "praise3": ("praise/3.mp3", "מְצֻיָּן!"),
-    "end": ("end.mp3", "כׇּל הַכָּבוֹד! סיימת!"),
+    "end": ("end.mp3", "כּוֹל הַכָּבוֹד! נִגְמַר!"),
 }
 
 

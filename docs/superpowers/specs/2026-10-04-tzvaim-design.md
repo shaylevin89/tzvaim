@@ -34,7 +34,7 @@ Niqqud is a starting point; any word that sounds wrong is re-generated with adju
 2. **Game:** top bar — 🏠 home (right), 5 progress dots (center), 🔊/🔇 mute (left).
    Below: target color word in large text (e.g. "ורוד") + 💬 button that replays the word.
    2×2 grid of white rounded cards, each showing one colored picture.
-3. **End (after 5 rounds):** confetti, spoken "כל הכבוד! סיימת!", "שוב" (play again) button, 🏠 home.
+3. **End (after 5 rounds):** confetti, spoken "כל הכבוד! נגמר!", "שוב" (play again) button, 🏠 home.
 
 🏠 during a game returns to the start screen (no confirmation).
 
